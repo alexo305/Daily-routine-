@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="uz" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Kunlik Reja">
+    <title>Kunlik Reja & USA Logistics English Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script>
+        // Single-file PWA Manifest fallback: if external manifest.json is missing on Netlify/Vercel/GitHub Pages,
+        // dynamically inject a valid data-URI manifest so Chrome's "Install app" prompt still triggers cleanly.
+        (function ensureManifest() {
+            const manifestObj = {
+                name: "Kunlik Reja & USA Logistics English Tracker",
+                short_name: "Kunlik Reja",
+                description: "HEMIS dars jadvali, English Speaking 6.5-7.0 va USA Truck Logistics kunlik check-in tracker",
+                start_url: "./",
+                scope: "./",
+                display: "standalone",
+                orientation: "portrait",
+                background_color: "#020617",
+                theme_color: "#0f172a",
+                icons: [
+                    {
+                        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%234f46e5'/%3E%3Cpath d='M148 264l74 74 142-154' stroke='%23ffffff' stroke-width='48' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E",
+                        sizes: "512x512",
+                        type: "image/svg+xml",
+                        purpose: "any maskable"
+                    }
+                ]
+            };
+
+            if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+                fetch("manifest.json", { method: "HEAD" })
+                    .then(res => {
+                        if (!res.ok) injectInlineManifest(manifestObj);
+                    })
+                    .catch(() => injectInlineManifest(manifestObj));
+            } else {
+                injectInlineManifest(manifestObj);
+            }
+
+            function injectInlineManifest(obj) {
+                const linkEl = document.querySelector('link[rel="manifest"]');
+                if (linkEl) {
+                    const encoded = encodeURIComponent(JSON.stringify(obj));
+                    linkEl.setAttribute("href", `data:application/manifest+json;charset=utf-8,${encoded}`);
+                }
+            }
+        })();
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen transition-colors duration-200 pb-24">
+
+    <!-- Top Sticky Header -->
+    <header class="sticky top-0 z-30 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-slate-200/80 dark:border-slate-800/80">
+        <div class="max-w-2xl mx-auto px-4 pt-3.5 pb-3">
+            <!-- Row 1: Live Clock, Date, Streak & Controls -->
+            <div class="flex items-center justify-between gap-2 mb-3">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span id="live-clock" class="text-xl sm:text-2xl font-extrabold tracking-tight font-mono text-indigo-600 dark:text-indigo-400">
+                            00:00:00
+                        </span>
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            Jonli
+                        </span>
+                    </div>
+                    <p id="live-date-text" class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                        23-noyabr, 2026-yil · Dushanba
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <!-- Streak Pill -->
+                    <div class="flex items-center gap-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-2.5 py-1.5 rounded-xl text-xs font-bold border border-amber-500/20" title="80%+ bajarilgan kunlar zanjiri">
+                        <span>🔥</span>
+                        <span id="streak-count">0</span>
+                    </div>
+
+                    <!-- Reminders / Notification Button -->
+                    <button onclick="openReminderModal()" class="relative p-2 rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition" title="Eslatmalar va bildirishnomalar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                        </svg>
+                        <span id="notif-dot" class="hidden absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500"></span>
+                    </button>
+
+                    <!-- Resources Hub Button -->
+                    <button onclick="openResourcesModal()" class="p-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-500 transition shadow-sm" title="English & USA Truck Logistics manbalari">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </button>
+
+                    <!-- Focus Timer Button -->
+                    <button onclick="openTimerModal()" class="p-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-sm" title="Fokus va Speaking taymeri">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleTheme()" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200/80 dark:border-slate-800 hover:bg-slate-200 dark:hover:bg-slate-800 transition" title="Mavzuni almashtirish">
+                        <svg class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <svg class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Week Navigation -->
+            <div class="flex items-center justify-between gap-1.5 mb-2">
+                <button onclick="shiftWeek(-1)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition" title="Oldingi hafta">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="flex items-center gap-2">
+                    <span id="week-range-label" class="text-[11px] font-bold text-slate-500 dark:text-slate-400">
+                        22-noyabr — 28-noyabr
+                    </span>
+                    <button id="jump-today-btn" onclick="jumpToToday()" class="hidden text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-600 text-white hover:bg-indigo-500 transition">
+                        Bugunga qaytish
+                    </button>
+                </div>
+                <button onclick="shiftWeek(1)" class="p-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 transition" title="Keyingi hafta">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+
+            <!-- 7-Day Strip -->
+            <div id="day-selector" class="grid grid-cols-7 gap-1.5 mb-3"></div>
+
+            <!-- Overall Day Progress Bar (Done + Missed counters) -->
+            <div class="bg-slate-100 dark:bg-slate-900/90 p-2.5 rounded-2xl border border-slate-200/70 dark:border-slate-800">
+                <div class="flex items-center justify-between text-xs font-semibold mb-1.5 gap-2">
+                    <span id="day-summary-label" class="text-slate-700 dark:text-slate-300 truncate">23-noyabr, Dushanba</span>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <span id="missed-count-badge" class="hidden text-[11px] font-bold px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-500">0 ✕</span>
+                        <span id="progress-text" class="text-indigo-600 dark:text-indigo-400 font-bold">0% (0/13)</span>
+                    </div>
+                </div>
+                <div class="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                    <div id="progress-bar-done" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                    <div id="progress-bar-missed" class="h-full bg-rose-500 transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between mt-1.5 text-[10px] text-slate-400">
+                    <span>1-bosish: <strong class="text-emerald-500">✓ Bajarildi</strong> · 2-bosish: <strong class="text-rose-500">✕ Bajarilmadi</strong></span>
+                    <button onclick="openReminderModal()" class="text-amber-500 font-bold hover:underline">🔔 Eslatmalar</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-2xl mx-auto px-4 pt-4 space-y-4">
+
+        <!-- Live Current Active Task Card -->
+        <section id="active-task-banner" class="hidden rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4 shadow-lg shadow-indigo-600/20">
+            <div class="flex items-start justify-between gap-3">
+                <div class="min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="px-2 py-0.5 rounded-md text-[10px] font-extrabold uppercase tracking-wider bg-white/20">
+                            Ayni damda
+                        </span>
+                        <span id="active-task-window" class="text-xs font-mono font-semibold text-indigo-100">00:00 – 00:00</span>
+                    </div>
+                    <h2 id="active-task-title" class="text-base font-extrabold leading-snug truncate">Vazifa nomi</h2>
+                    <p id="active-task-desc" class="text-xs text-indigo-100 mt-0.5 line-clamp-1">Tavsif</p>
+                </div>
+                <div class="text-right shrink-0 bg-black/20 px-3 py-2 rounded-xl border border-white/10">
+                    <div class="text-[10px] uppercase tracking-wider text-indigo-200 font-semibold">Qoldi</div>
+                    <div id="active-task-remaining" class="text-sm sm:text-base font-extrabold font-mono">00:00</div>
+                </div>
+            </div>
+            <div class="mt-3 w-full h-1.5 bg-black/25 rounded-full overflow-hidden">
+                <div id="active-task-progress" class="h-full bg-emerald-300 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+        </section>
+
+        <!-- Category Filter Chips -->
+        <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button onclick="setFilter('all')" data-filter="all" class="filter-btn active px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0 transition">
+                Barchasi
+            </button>
+            <button onclick="setFilter('uni')" data-filter="uni" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0 transition">
+                🎓 Universitet
+            </button>
+            <button onclick="setFilter('english')" data-filter="english" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0 transition">
+                🗣️ English 6.5–7.0
+            </button>
+            <button onclick="setFilter('commute')" data-filter="commute" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 shrink-0 transition">
+                🚌 Yo‘l (1s 20m)
+            </button>
+            <button onclick="setFilter('missed')" data-filter="missed" class="filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 text-rose-500 border border-slate-200 dark:border-slate-800 shrink-0 transition">
+                ✕ Bajarilmaganlar
+            </button>
+        </div>
+
+        <!-- Daily Schedule Timeline List -->
+        <section id="schedule-list" class="space-y-2.5"></section>
+
+        <!-- Anti-Scrolling & Discipline Guard Card -->
+        <section class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 p-4 shadow-sm">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 flex items-center justify-center shrink-0 text-lg">
+                        📵
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white">Scrolling va Uyqu Nazorati</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            Erkin oyna: <strong>20:30–22:00</strong>. Soat <strong>22:00</strong> da telefon uzoqqa qo‘yiladi, <strong>22:30</strong> da uyqu.
+                        </p>
+                    </div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer shrink-0 mt-1">
+                    <input type="checkbox" id="scrolling-guard-checkbox" onchange="toggleScrollingGuard()" class="sr-only peer">
+                    <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+                </label>
+            </div>
+        </section>
+
+        <!-- Quick Banner to Open English & USA Truck Logistics Resources -->
+        <section onclick="openResourcesModal()" class="cursor-pointer rounded-2xl bg-gradient-to-br from-emerald-950/95 to-slate-900 border border-emerald-500/30 p-4 text-white shadow-sm hover:border-emerald-400/60 transition">
+            <div class="flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-lg shrink-0">
+                        🚛
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-emerald-300">English 6.5–7.0 & USA Truck Logistics</h3>
+                        <p class="text-xs text-slate-300 mt-0.5">
+                            Real IELTS platformalar, USA Dispatch/Broker podkastlari va Truck logistika terminlari →
+                        </p>
+                    </div>
+                </div>
+                <svg class="w-5 h-5 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </div>
+        </section>
+
+        <!-- Footer Info -->
+        <div class="pt-2 pb-6 flex items-center justify-between text-xs text-slate-400 dark:text-slate-500">
+            <span id="storage-date-label">Sana: 2026-11-23</span>
+            <button onclick="openResetModal()" class="text-rose-500 hover:underline font-medium">
+                Shu kunni tozalash
+            </button>
+        </div>
+    </main>
+
+    <!-- Reminders & Notifications Modal -->
+    <div id="reminder-modal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[88vh] flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+                <div>
+                    <h3 class="text-base font-extrabold">🔔 Eslatmalar & Bildirishnomalar</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Uyg‘onish, telefonni qo‘yish va dars signallari</p>
+                </div>
+                <button onclick="closeReminderModal()" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-4">
+                <!-- Notification Permission Banner -->
+                <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/25">
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <div class="text-xs font-bold text-amber-600 dark:text-amber-400">Telefon bildirishnomasi</div>
+                            <div id="notif-permission-status" class="text-[11px] text-slate-600 dark:text-slate-300 mt-0.5">Holat tekshirilmoqda...</div>
+                        </div>
+                        <button onclick="requestNotifPermission()" class="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs shrink-0 transition">
+                            Yoqish
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-2 leading-relaxed">
+                        💡 Eslatma: Ilova fonda ochiq bo‘lganda ovozli signal va bildirishnoma keladi. Uyg‘onish (06:00) uchun telefoningizning asosiy <strong>Budilnik</strong> ilovasida ham signal qo‘yib qo‘ying.
+                    </p>
+                </div>
+
+                <!-- Test Sound Button -->
+                <button onclick="testNotificationAlert()" class="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-indigo-600 dark:text-indigo-400 transition">
+                    🔊 Signal va bildirishnomani hozir sinab ko‘rish
+                </button>
+
+                <!-- Built-in & Custom Reminders List -->
+                <div id="reminders-list" class="space-y-2"></div>
+
+                <!-- Add Custom Reminder -->
+                <div class="pt-2 border-t border-slate-200/80 dark:border-slate-800">
+                    <div class="text-xs font-bold mb-2">+ Yangi eslatma qo‘shish</div>
+                    <div class="flex gap-2">
+                        <input type="time" id="new-rem-time" value="21:55" class="rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs font-mono">
+                        <input type="text" id="new-rem-title" placeholder="Masalan: Telefonni o‘chirish vaqti!" class="flex-1 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-2 text-xs">
+                        <button onclick="addCustomReminder()" class="px-3.5 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500">
+                            Qo‘shish
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- In-App Alarm Banner Toast (When a reminder triggers) -->
+    <div id="alarm-toast" class="fixed top-4 left-4 right-4 z-50 hidden max-w-md mx-auto rounded-2xl bg-amber-500 text-slate-950 p-4 shadow-2xl border-2 border-white">
+        <div class="flex items-start justify-between gap-3">
+            <div>
+                <div class="text-[10px] font-extrabold uppercase tracking-wider">⏰ Eslatma Vaqti!</div>
+                <h4 id="alarm-toast-title" class="text-sm font-extrabold mt-0.5">22:00 — Telefonni uzoqqa qo‘ying!</h4>
+                <p id="alarm-toast-body" class="text-xs font-medium mt-0.5 opacity-90">Scrolling to‘xtatildi. Uxlashga tayyorlaning.</p>
+            </div>
+            <button onclick="dismissAlarmToast()" class="px-3 py-1.5 rounded-xl bg-slate-950 text-white text-xs font-bold shrink-0">
+                Tushundim
+            </button>
+        </div>
+    </div>
+
+    <!-- Focus & Speaking Timer Modal -->
+    <div id="timer-modal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-6 shadow-2xl">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-base font-bold">Fokus & Speaking Taymer</h3>
+                <button onclick="closeTimerModal()" class="p-1.5 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2 mb-5">
+                <button onclick="setTimerPreset(2)" class="py-2 px-2 rounded-xl text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition">
+                    2 min<br><span class="text-[10px] opacity-80">IELTS Part 2</span>
+                </button>
+                <button onclick="setTimerPreset(20)" class="py-2 px-2 rounded-xl text-xs font-semibold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 hover:bg-indigo-500/20 transition">
+                    20 min<br><span class="text-[10px] opacity-80">Shadowing</span>
+                </button>
+                <button onclick="setTimerPreset(30)" class="py-2 px-2 rounded-xl text-xs font-semibold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition">
+                    30 min<br><span class="text-[10px] opacity-80">Power Nap</span>
+                </button>
+            </div>
+
+            <div class="text-center py-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200/70 dark:border-slate-800 mb-5">
+                <div id="timer-display" class="text-5xl font-extrabold tracking-tight font-mono text-indigo-600 dark:text-indigo-400">
+                    20:00
+                </div>
+                <p id="timer-status" class="text-xs text-slate-500 dark:text-slate-400 mt-2">Tayyor</p>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <button id="timer-start-btn" onclick="toggleTimer()" class="flex-1 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-sm transition">
+                    Boshlash
+                </button>
+                <button onclick="resetTimer()" class="py-3 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold text-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                    Qayta
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Real English 6.5–7.0 & USA Truck Logistics Resources Modal -->
+    <div id="resources-modal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[88vh] flex flex-col shadow-2xl">
+            <div class="flex items-center justify-between p-5 border-b border-slate-200/80 dark:border-slate-800 shrink-0">
+                <div>
+                    <h3 class="text-base font-extrabold">English 6.5–7.0 & USA Truck Logistics</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">IELTS Speaking va AQSH yuk tashish (Dispatch/Broker) bazasi</p>
+                </div>
+                <button onclick="closeResourcesModal()" class="p-2 rounded-xl text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">✕</button>
+            </div>
+
+            <div class="p-5 overflow-y-auto space-y-5">
+                <!-- Speaking Prompt Generator (IELTS + USA Trucking) -->
+                <div class="rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-500/30 p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">
+                            🎙️ 2-Daqiqalik Speaking Savol
+                        </span>
+                        <button onclick="nextSpeakingTopic()" class="text-xs font-bold px-2.5 py-1 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 transition">
+                            Yangi savol ↻
+                        </button>
+                    </div>
+                    <p id="speaking-topic-text" class="text-sm font-semibold text-slate-800 dark:text-slate-100 leading-relaxed">
+                        Explain how a truck dispatcher negotiates a freight rate with a broker when fuel prices or detention times increase.
+                    </p>
+                    <p id="speaking-topic-vocab" class="text-xs text-indigo-700 dark:text-indigo-300 mt-2 font-medium">
+                        Kalit so‘zlar: rate confirmation, deadhead miles, detention fee, dry van, spot market.
+                    </p>
+                </div>
+
+                <!-- 1. USA Truck Logistics Real Platforms & Podcasts -->
+                <div>
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-emerald-500 mb-2.5">
+                        🚛 1. USA Truck Logistics & Dispatching Manbalari
+                    </h4>
+                    <div class="space-y-2">
+                        <a href="https://www.freightwaves.com/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">FreightWaves — US Trucking & Freight Market News</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">AQSH yuk bozori, spot stavkalar, brokerlar va trakerlar haqida 1-raqamli sayt</div>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                        <a href="https://www.dat.com/resources" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">DAT Freight & Analytics (Load Board & Trends)</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">AQSHdagi eng yirik Load Board platformasi bozor tahlillari va podkastlari</div>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                        <a href="https://www.fmcsa.dot.gov/regulations" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">FMCSA — Hours of Service (HOS) & ELD Rules</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Haydovchilarning 11/14 soatlik ish qoidalari va AQSH transport qonunlari</div>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-500 shrink-0 ml-2">O‘qish ↗</span>
+                        </a>
+                        <a href="https://www.youtube.com/results?search_query=truck+dispatching+training+usa+english+broker+call" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-emerald-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">YouTube: Real Dispatcher & Broker Call Recordings</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Brokerlar bilan telefonda yuk narxini savdolashish (Negotiation) namunalari</div>
+                            </div>
+                            <span class="text-xs font-bold text-emerald-500 shrink-0 ml-2">YouTube ↗</span>
+                        </a>
+                    </div>
+
+                    <!-- USA Trucking Core Glossary Card -->
+                    <div class="mt-2.5 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs space-y-1.5">
+                        <div class="font-bold text-emerald-600 dark:text-emerald-400">📌 USA Trucking Asosiy Terminlar (Har kuni kerak bo‘ladi):</div>
+                        <p class="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+                            <strong>• BOL (Bill of Lading):</strong> Yuk hujjati · <strong>POD (Proof of Delivery):</strong> Yuk topshirilganligi tasdig‘i<br>
+                            <strong>• Detention / Layover:</strong> Yuklash/tushirish kechikkani uchun qo‘shimcha to‘lov<br>
+                            <strong>• Lumper fee:</strong> Omborda yukni tushiruvchi ishchilar to‘lovi · <strong>Deadhead:</strong> Bo‘sh yurilgan milya<br>
+                            <strong>• Dry Van / Reefer / Flatbed:</strong> Yopiq furgon / Muzlatkichli / Ochiq platforma
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 2. Real English Speaking 6.5 - 7.0 Platforms -->
+                <div>
+                    <h4 class="text-xs font-extrabold uppercase tracking-wider text-indigo-400 mb-2.5">
+                        🗣️ 2. Real English Speaking (6.5 → 7.0) Materiallar
+                    </h4>
+                    <div class="space-y-2">
+                        <a href="https://ieltsliz.com/ielts-speaking-free-lessons-essential-tips/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">IELTS Liz — Speaking Part 1, 2, 3 Real Topics & Answers</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Imtihonda tushadigan eng yangi mavzular va Band 7+ strategiyalar</div>
+                            </div>
+                            <span class="text-xs font-bold text-indigo-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                        <a href="https://www.bbc.co.uk/learningenglish/english/features/6-minute-english" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">BBC 6 Minute English (Audio + PDF Transkript)</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Yo‘lda eshitib, uyda matniga qarab Shadowing qilish uchun eng zo‘r manba</div>
+                            </div>
+                            <span class="text-xs font-bold text-indigo-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                        <a href="https://youglish.com/pronounce/detention/english/us" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">YouGlish (US Accent) — Amerika talaffuzini mashq qilish</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">AQSH brokerlari bilan gaplashishda kerak bo‘ladigan jonli talaffuz</div>
+                            </div>
+                            <span class="text-xs font-bold text-indigo-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                        <a href="https://www.free4talk.com/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 hover:border-indigo-500 transition">
+                            <div>
+                                <div class="text-xs font-bold text-slate-900 dark:text-white">Free4Talk — Jonli Speaking Partnerlar Platformasi</div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Juma va Shanba kunlari bepul jonli muloqot amaliyoti</div>
+                            </div>
+                            <span class="text-xs font-bold text-indigo-500 shrink-0 ml-2">Ochish ↗</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Task Note Modal -->
+    <div id="note-modal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-sm w-full p-5 shadow-2xl">
+            <div class="flex items-center justify-between mb-2">
+                <span id="note-modal-time" class="text-xs font-mono font-bold text-indigo-500">06:45 – 08:30</span>
+                <button onclick="closeNoteModal()" class="text-slate-400 hover:text-slate-600">✕</button>
+            </div>
+            <h3 id="note-modal-title" class="text-sm font-bold mb-3">Vazifa qaydi</h3>
+            <textarea id="task-note-input" rows="3" placeholder="Sabab yoki qayd yozing (masalan: Nega bajarilmadi yoki qaysi mavzu tugatildi)..." class="w-full rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3 text-xs focus:outline-none focus:border-indigo-500"></textarea>
+            <div class="flex gap-2 mt-3">
+                <button onclick="saveTaskNote()" class="flex-1 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold">
+                    Saqlash
+                </button>
+                <button onclick="closeNoteModal()" class="py-2.5 px-4 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold">
+                    Bekor
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Confirmation Modal -->
+    <div id="reset-modal" class="fixed inset-0 z-50 hidden bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xs w-full p-5 shadow-2xl text-center">
+            <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-3 text-xl">
+                ⚠️
+            </div>
+            <h3 class="text-base font-bold mb-1">Shu kunni tozalaysizmi?</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">
+                Tanlangan sana uchun belgilangan barcha natijalar o‘chiriladi.
+            </p>
+            <div class="flex gap-2">
+                <button onclick="closeResetModal()" class="flex-1 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-semibold">
+                    Bekor qilish
+                </button>
+                <button onclick="confirmResetDay()" class="flex-1 py-2.5 rounded-xl bg-rose-600 text-white text-xs font-semibold">
+                    Tozalash
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. SCHEDULE DATA (HEMIS + Commute Buffers)
+        // ==========================================
+        const SCHEDULE_DATA = {
+            Dushanba: {
+                subtitle: "2 para (14:30 – 17:20)",
+                tasks: [
+                    { id: "mon_1", start: "06:00", end: "06:45", title: "Uyg‘onish va nonushta", desc: "Yuvinish, suv ichish, to‘yimli nonushta", cat: "routine" },
+                    { id: "mon_2", start: "06:45", end: "08:30", title: "University darslari (1s 45m)", desc: "Eng yuqori energiya vaqtida asosiy fanlarga tayyorgarlik", cat: "uni" },
+                    { id: "mon_3", start: "08:30", end: "08:45", title: "Tanaffus", desc: "15 daqiqa choy/suv, ko‘zni dam oldirish", cat: "routine" },
+                    { id: "mon_4", start: "08:45", end: "10:00", title: "English (Uyda): Shadowing + Part 2", desc: "20 min Shadowing + 30 min diktofonga gapirish + 25 min tahlil", cat: "english" },
+                    { id: "mon_5", start: "10:00", end: "12:15", title: "Erkin vaqt va tushlik", desc: "Dam olish, tushlik qilish (uyqusiz)", cat: "routine" },
+                    { id: "mon_6", start: "12:15", end: "13:10", title: "Yo‘lga tayyorgarlik (Bufer)", desc: "Kiyinish, sumkani yig‘ish, yo‘lga yengil yegulik olish", cat: "routine" },
+                    { id: "mon_7", start: "13:10", end: "14:30", title: "Yo‘l (1s 20m): English & Freight Podcast", desc: "45 min BBC/FreightWaves podkast + 35 min dam", cat: "commute" },
+                    { id: "mon_8", start: "14:30", end: "17:20", title: "Universitet (2 para)", desc: "Iqtisodiy ta'limotlar tarixi (Ma'ruza & Amaliy)", cat: "uni" },
+                    { id: "mon_9", start: "17:20", end: "18:40", title: "Yo‘l (1s 20m): Mental Speaking", desc: "Eshitilgan mavzularni xayolda 2 daqiqalik javobga aylantirish", cat: "commute" },
+                    { id: "mon_10", start: "18:40", end: "19:45", title: "Uyga kirish va kechki ovqat", desc: "Kiyim almashtirish, ovqatlanish, nafas rostlash", cat: "routine" },
+                    { id: "mon_11", start: "19:45", end: "20:30", title: "University darslari (45 min)", desc: "Ertangi Seshanba 3 ta parasiga tayyorgarlik", cat: "uni" },
+                    { id: "mon_12", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Ijtimoiy tarmoqlar va shaxsiy hordiq", cat: "routine" },
+                    { id: "mon_13", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Telefonni uzoqqa qo‘yish (ertaga 06:40 chiqish)", cat: "routine" }
+                ]
+            },
+            Seshanba: {
+                subtitle: "3 para (08:00 – 12:20)",
+                tasks: [
+                    { id: "tue_1", start: "06:00", end: "06:40", title: "Uyg‘onish va tez nonushta", desc: "Sumka kechqurun tayyorlangan, 06:40 da yo‘lga chiqish", cat: "routine" },
+                    { id: "tue_2", start: "06:40", end: "08:00", title: "Yo‘l (1s 20m): English Podcast", desc: "Ertalabki inglizcha audio eshitish", cat: "commute" },
+                    { id: "tue_3", start: "08:00", end: "12:20", title: "Universitet (3 para)", desc: "Iqtisodiyot nazariyasi, AKT, Amaliy matematika", cat: "uni" },
+                    { id: "tue_4", start: "12:20", end: "13:40", title: "Yo‘l (1s 20m): Mental Speaking", desc: "Qaytish yo‘lida ingliz tilida fikrlash mashqi", cat: "commute" },
+                    { id: "tue_5", start: "13:40", end: "15:30", title: "Tushlik + 30 min Power Nap", desc: "Faqat bugun 30 daqiqa budilnik bilan kunduzgi uyqu ruxsat", cat: "routine" },
+                    { id: "tue_6", start: "15:30", end: "17:15", title: "University darslari (1s 45m)", desc: "Matematika va AKT vazifalarini bajarish", cat: "uni" },
+                    { id: "tue_7", start: "17:15", end: "17:30", title: "Tanaffus", desc: "15 daqiqa nafas rostlash", cat: "routine" },
+                    { id: "tue_8", start: "17:30", end: "18:45", title: "English (Uyda): Shadowing + Part 2", desc: "75 daqiqa faol talaffuz va diktofon tahlili", cat: "english" },
+                    { id: "tue_9", start: "18:45", end: "20:30", title: "Kechki ovqat va to‘liq hordiq", desc: "Oila bilan vaqt va dam olish", cat: "routine" },
+                    { id: "tue_10", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Ruxsat etilgan ijtimoiy tarmoq vaqti", cat: "routine" },
+                    { id: "tue_11", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Uxlashdan 30 daqiqa oldin ekransiz rejim", cat: "routine" }
+                ]
+            },
+            Chorshanba: {
+                subtitle: "4 para (11:00 – 17:20 · Eng og‘ir kun)",
+                tasks: [
+                    { id: "wed_1", start: "06:00", end: "06:45", title: "Uyg‘onish va nonushta", desc: "Yuvinish va nonushta", cat: "routine" },
+                    { id: "wed_2", start: "06:45", end: "08:15", title: "University darslari (90 min)", desc: "Bugungi 4 ta para va Xorijiy til darsiga tayyorgarlik", cat: "uni" },
+                    { id: "wed_3", start: "08:15", end: "08:30", title: "Tanaffus", desc: "15 daqiqa dam olish", cat: "routine" },
+                    { id: "wed_4", start: "08:30", end: "09:05", title: "English (Uyda): Speaking Part 1–3", desc: "35 daqiqa intensiv tezkor savol-javob mashqi", cat: "english" },
+                    { id: "wed_5", start: "09:05", end: "09:40", title: "Yo‘lga tayyorgarlik (Bufer)", desc: "Kiyinish, sumka va yengil tamaddi olish", cat: "routine" },
+                    { id: "wed_6", start: "09:40", end: "11:00", title: "Yo‘l (1s 20m): English Podcast", desc: "Xorijiy til darsi oldidan inglizcha muhitga kirish", cat: "commute" },
+                    { id: "wed_7", start: "11:00", end: "17:20", title: "Universitet (4 para)", desc: "Tarix, Iqtisodiyot nazariyasi, Amaliy mat., Xorijiy til", cat: "uni" },
+                    { id: "wed_8", start: "17:20", end: "18:40", title: "Yo‘l (1s 20m): Yengil audio / Dam", desc: "4 paradan keyin miyani zo‘riqtirmasdan qaytish", cat: "commute" },
+                    { id: "wed_9", start: "18:40", end: "20:30", title: "Kechki ovqat va to‘liq dam", desc: "Bugun boshqa dars yo‘q — to‘liq tiklanish", cat: "routine" },
+                    { id: "wed_10", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Shaxsiy hordiq vaqti", cat: "routine" },
+                    { id: "wed_11", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Payshanba uchun narsalarni tayyorlab uxlash", cat: "routine" }
+                ]
+            },
+            Payshanba: {
+                subtitle: "3 para (09:30 – 14:20)",
+                tasks: [
+                    { id: "thu_1", start: "06:00", end: "06:40", title: "Uyg‘onish va nonushta", desc: "Yuvinish va nonushta", cat: "routine" },
+                    { id: "thu_2", start: "06:40", end: "07:35", title: "English (Uyda): Shadowing + Vocab", desc: "55 daqiqa talaffuz va USA trucking iboralari", cat: "english" },
+                    { id: "thu_3", start: "07:35", end: "08:10", title: "Yo‘lga tayyorgarlik (Bufer)", desc: "Kiyinish, sumka va yengil yegulik olish", cat: "routine" },
+                    { id: "thu_4", start: "08:10", end: "09:30", title: "Yo‘l (1s 20m): English Podcast", desc: "Podkast eshitish va lug‘at takrori", cat: "commute" },
+                    { id: "thu_5", start: "09:30", end: "14:20", title: "Universitet (3 para)", desc: "Iqtisodiy ta'limotlar, Tarix, Xorijiy til", cat: "uni" },
+                    { id: "thu_6", start: "14:20", end: "15:40", title: "Yo‘l (1s 20m): Mental Speaking", desc: "2 daqiqalik mavzularni ichda tuzish", cat: "commute" },
+                    { id: "thu_7", start: "15:40", end: "17:00", title: "Uyga kelish, tushlik va dam", desc: "Ovqatlanish va 80 daqiqa dam olish", cat: "routine" },
+                    { id: "thu_8", start: "17:00", end: "18:30", title: "University darslari (90 min)", desc: "Uyga vazifalar va konspektlarni bajarish", cat: "uni" },
+                    { id: "thu_9", start: "18:30", end: "19:30", title: "Kechki ovqat va hordiq", desc: "Ovqatlanish va tanaffus", cat: "routine" },
+                    { id: "thu_10", start: "19:30", end: "20:30", title: "English (Uyda): USA Logistics Speaking", desc: "Broker/Dispatcher muzokara va IELTS mavzularida gapirish", cat: "english" },
+                    { id: "thu_11", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Shaxsiy hordiq", cat: "routine" },
+                    { id: "thu_12", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Rejim bo‘yicha uyqu", cat: "routine" }
+                ]
+            },
+            Juma: {
+                subtitle: "2 para (13:00 – 15:50)",
+                tasks: [
+                    { id: "fri_1", start: "06:00", end: "06:45", title: "Uyg‘onish va nonushta", desc: "Yuvinish va nonushta", cat: "routine" },
+                    { id: "fri_2", start: "06:45", end: "08:30", title: "University darslari (1s 45m)", desc: "Haftalik konspektlar va oraliq nazoratga tayyorgarlik", cat: "uni" },
+                    { id: "fri_3", start: "08:30", end: "08:45", title: "Tanaffus", desc: "15 daqiqa dam olish", cat: "routine" },
+                    { id: "fri_4", start: "08:45", end: "10:00", title: "English (Uyda): Logistics + IELTS", desc: "75 daqiqa chuqur speaking mashqi", cat: "english" },
+                    { id: "fri_5", start: "10:00", end: "11:00", title: "Erkin vaqt va tushlik", desc: "Tushlik qilish va dam olish", cat: "routine" },
+                    { id: "fri_6", start: "11:00", end: "11:40", title: "Yo‘lga tayyorgarlik (Bufer)", desc: "Kiyinish, sumka va yegulik olish", cat: "routine" },
+                    { id: "fri_7", start: "11:40", end: "13:00", title: "Yo‘l (1s 20m): English Podcast", desc: "Podkast eshitish", cat: "commute" },
+                    { id: "fri_8", start: "13:00", end: "15:50", title: "Universitet (2 para)", desc: "Iqtisodiyot nazariyasi & Iqtisodiyotda AKT (Lab)", cat: "uni" },
+                    { id: "fri_9", start: "15:50", end: "17:10", title: "Yo‘l (1s 20m): Hafta sarhisobi", desc: "Ingliz tilida hafta davomida o‘rganganlarni xulosalash", cat: "commute" },
+                    { id: "fri_10", start: "17:10", end: "19:00", title: "Uyga kelish va kechki ovqat", desc: "Ovqatlanish va dam olish", cat: "routine" },
+                    { id: "fri_11", start: "19:00", end: "20:00", title: "English (Uyda): Speaking Partner", desc: "Free4Talk yoki sherik bilan jonli speaking amaliyoti", cat: "english" },
+                    { id: "fri_12", start: "20:00", end: "22:00", title: "Erkin oyna (Hafta yakuni hordiq)", desc: "2 soat erkin vaqt", cat: "routine" },
+                    { id: "fri_13", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Shanba kuni ham 06:00 rejimini saqlaymiz", cat: "routine" }
+                ]
+            },
+            Shanba: {
+                subtitle: "Dars yo‘q · Chuqur o‘sish kuni",
+                tasks: [
+                    { id: "sat_1", start: "06:00", end: "06:45", title: "Uyg‘onish va nonushta", desc: "Biologik soatni buzmaslik uchun 06:00 turish", cat: "routine" },
+                    { id: "sat_2", start: "06:45", end: "08:30", title: "University darslari (1s 45m)", desc: "Qiyin mavzular, Amaliy matematika va Excel/AKT", cat: "uni" },
+                    { id: "sat_3", start: "08:30", end: "08:45", title: "Tanaffus", desc: "15 daqiqa choy/dam", cat: "routine" },
+                    { id: "sat_4", start: "08:45", end: "10:15", title: "English (Uyda): Full Speaking Mock", desc: "To‘liq Part 1–2–3 imtihon simulyatsiyasi va tahlil", cat: "english" },
+                    { id: "sat_5", start: "10:15", end: "11:30", title: "Shaxsiy vaqt / hordiq", desc: "75 daqiqa erkin vaqt", cat: "routine" },
+                    { id: "sat_6", start: "11:30", end: "12:30", title: "USA Truck Logistics (60 min)", desc: "FreightWaves, DAT Load Board, FMCSA va broker call videolar", cat: "english" },
+                    { id: "sat_7", start: "12:30", end: "16:00", title: "Tushlik va kunduzgi dam olish", desc: "To‘liq hordiq", cat: "routine" },
+                    { id: "sat_8", start: "16:00", end: "20:30", title: "Speaking Club & Do‘stlar bilan vaqt", desc: "Jonli muloqot va ijtimoiy hayot", cat: "routine" },
+                    { id: "sat_9", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Shaxsiy hordiq", cat: "routine" },
+                    { id: "sat_10", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Rejim bo‘yicha uyqu", cat: "routine" }
+                ]
+            },
+            Yakshanba: {
+                subtitle: "Dars yo‘q · Tiklanish va tahlil",
+                tasks: [
+                    { id: "sun_1", start: "06:00", end: "06:45", title: "Uyg‘onish va nonushta", desc: "06:00 rejimini ushlab turish", cat: "routine" },
+                    { id: "sun_2", start: "06:45", end: "08:30", title: "University darslari (1s 45m)", desc: "Kelasi hafta darslariga oldindan tayyorgarlik", cat: "uni" },
+                    { id: "sun_3", start: "08:30", end: "08:45", title: "Tanaffus", desc: "15 daqiqa dam", cat: "routine" },
+                    { id: "sun_4", start: "08:45", end: "10:15", title: "English (Uyda): Haftalik xatolar tahlili", desc: "Hafta davomida yozilgan audio va yangi so‘zlarni mustahkamlash", cat: "english" },
+                    { id: "sun_5", start: "10:15", end: "11:30", title: "Shaxsiy ishlar", desc: "Xona tartibi, shaxsiy yumushlar", cat: "routine" },
+                    { id: "sun_6", start: "11:30", end: "12:30", title: "USA Trucking Case-Study (60 min)", desc: "AQSH yuk tashish bozori va dispatcher ish jarayoni tahlili", cat: "english" },
+                    { id: "sun_7", start: "12:30", end: "19:30", title: "Katta dam olish va oila/do‘stlar", desc: "Yangi haftaga kuch yig‘ish", cat: "routine" },
+                    { id: "sun_8", start: "19:30", end: "20:30", title: "Kelasi hafta rejasi & Dushanba sumkasi", desc: "Haftalik maqsadlarni ko‘zdan kechirish", cat: "routine" },
+                    { id: "sun_9", start: "20:30", end: "22:00", title: "Erkin oyna (Scrolling / Dam)", desc: "Shaxsiy hordiq", cat: "routine" },
+                    { id: "sun_10", start: "22:00", end: "22:30", title: "Telefonni to‘xtatish va 22:30 uyqu", desc: "Dushanbaga to‘liq energiya bilan kirish", cat: "routine" }
+                ]
+            }
+        };
+
+        const SPEAKING_PROMPTS = [
+            {
+                q: "Explain how a truck dispatcher negotiates a freight rate with a broker when fuel prices or detention times increase.",
+                vocab: "rate confirmation, deadhead miles, detention fee, dry van, spot market"
+            },
+            {
+                q: "What are the main responsibilities of a US freight dispatcher during a multi-stop cross-country shipment?",
+                vocab: "check-call, appointment window, Bill of Lading (BOL), Hours of Service (HOS), transit delay"
+            },
+            {
+                q: "Compare Dry Van, Reefer, and Flatbed trailers in the American trucking industry.",
+                vocab: "temperature-controlled, perishable goods, tarping, load securement, freight class"
+            },
+            {
+                q: "Describe a time when you had to organize a strict daily schedule and overcome distractions.",
+                vocab: "self-discipline, time-blocking, eliminate distractions, stay consistent, productivity"
+            },
+            {
+                q: "How do Electronic Logging Devices (ELD) and FMCSA regulations improve highway safety in the USA?",
+                vocab: "compliance, fatigue management, driving limit, mandatory break, fleet safety"
+            },
+            {
+                q: "Why is clear spoken English essential when communicating with US freight brokers and drivers?",
+                vocab: "negotiation skills, clarity, avoid costly mistakes, build trust, professional tone"
+            }
+        ];
+
+        const DEFAULT_REMINDERS = [
+            { id: "rem_wake", time: "06:00", title: "☀️ Uyg‘onish vaqti! (06:00 Rejim)", body: "Yangi kun boshlandi. Telefonni titkilamasdan yuvinib, nonushta qiling.", enabled: true, builtin: true },
+            { id: "rem_stop_phone", time: "22:00", title: "📵 Telefonni to‘xtatish vaqti! (22:00)", body: "Scrolling tugadi! Telefonni zaryadkaga qo‘yib, krovatdan uzoqlashtiring.", enabled: true, builtin: true },
+            { id: "rem_sleep", time: "22:30", title: "😴 Uxlash vaqti! (22:30)", body: "Ertaga 06:00 da tetik turish uchun hozir chiroqni o‘chiring.", enabled: true, builtin: true }
+        ];
+
+        const DAY_SHORT = {
+            Dushanba: "Du", Seshanba: "Se", Chorshanba: "Ch",
+            Payshanba: "Pa", Juma: "Ju", Shanba: "Sh", Yakshanba: "Ya"
+        };
+
+        const UZ_MONTHS = [
+            "yanvar", "fevral", "mart", "aprel", "may", "iyun",
+            "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"
+        ];
+
+        const CAT_BADGE = {
+            uni: { label: "Universitet", cls: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20" },
+            english: { label: "English & Logistics", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" },
+            commute: { label: "Yo‘l · Podcast", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" },
+            routine: { label: "Rejim & Bufer", cls: "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20" }
+        };
+
+        // ==========================================
+        // 2. DATE & STORAGE MANAGEMENT
+        // ==========================================
+        const STORAGE_KEY = "uni_usa_logistics_v4";
+        const START_ANCHOR_DATE = new Date(2026, 10, 22);
+        START_ANCHOR_DATE.setHours(0, 0, 0, 0);
+
+        let selectedDateObj = getInitialActiveDate();
+        let viewWindowStartObj = getWindowStartForDate(selectedDateObj);
+        let activeFilter = "all";
+        let editingNoteTaskId = null;
+        let currentPromptIndex = 0;
+        let lastTriggeredMinuteKey = "";
+
+        function getInitialActiveDate() {
+            const now = new Date();
+            now.setHours(0, 0, 0, 0);
+            return now < START_ANCHOR_DATE ? new Date(START_ANCHOR_DATE) : now;
+        }
+
+        function getWindowStartForDate(dateObj) {
+            const d = new Date(dateObj);
+            d.setHours(0, 0, 0, 0);
+            const diffDays = Math.floor((d - START_ANCHOR_DATE) / (1000 * 60 * 60 * 24));
+            const weekBlock = Math.floor(diffDays / 7);
+            const winStart = new Date(START_ANCHOR_DATE);
+            winStart.setDate(START_ANCHOR_DATE.getDate() + weekBlock * 7);
+            return winStart;
+        }
+
+        function getUzbekDayName(dateObj) {
+            const map = ["Yakshanba", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba"];
+            return map[dateObj.getDay()];
+        }
+
+        function formatDateKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+            const d = String(dateObj.getDate()).padStart(2, "0");
+            return `${y}-${m}-${d}`;
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.byDate) {
+                        if (!parsed.reminders) parsed.reminders = [...DEFAULT_REMINDERS];
+                        return parsed;
+                    }
+                }
+            } catch (e) {
+                console.error("Storage read error:", e);
+            }
+            return { byDate: {}, taskNotes: {}, reminders: [...DEFAULT_REMINDERS] };
+        }
+
+        let state = loadState();
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.error("Storage write error:", e);
+            }
+        }
+
+        function getDateRecord(dateKey) {
+            if (!state.byDate[dateKey]) {
+                state.byDate[dateKey] = { status: {}, scrollingGuard: false };
+            }
+            if (!state.byDate[dateKey].status) {
+                state.byDate[dateKey].status = {};
+            }
+            return state.byDate[dateKey];
+        }
+
+        function getTaskStatus(rec, taskId) {
+            return rec.status[taskId] || "pending";
+        }
+
+        function cycleTaskStatus(taskId) {
+            const dateKey = formatDateKey(selectedDateObj);
+            const rec = getDateRecord(dateKey);
+            const current = getTaskStatus(rec, taskId);
+
+            if (current === "pending") {
+                rec.status[taskId] = "done";
+            } else if (current === "done") {
+                rec.status[taskId] = "missed";
+            } else {
+                delete rec.status[taskId];
+            }
+            saveState();
+            renderAll();
+        }
+
+        function shiftWeek(deltaWeeks) {
+            const nextStart = new Date(viewWindowStartObj);
+            nextStart.setDate(viewWindowStartObj.getDate() + deltaWeeks * 7);
+            if (nextStart < START_ANCHOR_DATE) return;
+            viewWindowStartObj = nextStart;
+            selectedDateObj = new Date(viewWindowStartObj);
+            renderAll();
+        }
+
+        function jumpToToday() {
+            selectedDateObj = getInitialActiveDate();
+            viewWindowStartObj = getWindowStartForDate(selectedDateObj);
+            renderAll();
+        }
+
+        function calculateStreak() {
+            let streak = 0;
+            const checkDate = getInitialActiveDate();
+            for (let i = 0; i < 365; i++) {
+                if (checkDate < START_ANCHOR_DATE) break;
+                const dKey = formatDateKey(checkDate);
+                const dName = getUzbekDayName(checkDate);
+                const tasks = SCHEDULE_DATA[dName].tasks;
+                const rec = state.byDate[dKey];
+                const doneCount = rec && rec.status ? tasks.filter(t => rec.status[t.id] === "done").length : 0;
+                const pct = tasks.length > 0 ? Math.round((doneCount / tasks.length) * 100) : 0;
+
+                if (pct >= 80) {
+                    streak++;
+                } else if (i > 0) {
+                    break;
+                }
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+            return streak;
+        }
+
+        // ==========================================
+        // 3. NOTIFICATIONS & REMINDERS ENGINE
+        // ==========================================
+        function playChimeSound() {
+            try {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (!AudioCtx) return;
+                const ctx = new AudioCtx();
+                const notes = [587.33, 880, 1174.66];
+                notes.forEach((freq, idx) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(freq, ctx.currentTime + idx * 0.16);
+                    gain.gain.setValueAtTime(0.25, ctx.currentTime + idx * 0.16);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.16 + 0.5);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(ctx.currentTime + idx * 0.16);
+                    osc.stop(ctx.currentTime + idx * 0.16 + 0.5);
+                });
+            } catch (e) {
+                console.log("Audio blocked until user interaction");
+            }
+        }
+
+        function triggerNotification(title, body) {
+            playChimeSound();
+            if ("vibrate" in navigator) {
+                navigator.vibrate([300, 150, 300]);
+            }
+
+            document.getElementById("alarm-toast-title").textContent = title;
+            document.getElementById("alarm-toast-body").textContent = body;
+            document.getElementById("alarm-toast").classList.remove("hidden");
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                try {
+                    new Notification(title, {
+                        body: body,
+                        tag: "routine-reminder",
+                        renotify: true
+                    });
+                } catch (e) {
+                    console.error("Notification error:", e);
+                }
+            }
+        }
+
+        function dismissAlarmToast() {
+            document.getElementById("alarm-toast").classList.add("hidden");
+        }
+
+        function checkReminders(now) {
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            const currentHM = `${hh}:${mm}`;
+            const minuteKey = `${formatDateKey(now)}_${currentHM}`;
+
+            if (minuteKey === lastTriggeredMinuteKey) return;
+
+            const matching = state.reminders.filter(r => r.enabled && r.time === currentHM);
+            if (matching.length > 0) {
+                lastTriggeredMinuteKey = minuteKey;
+                matching.forEach(rem => {
+                    triggerNotification(rem.title, rem.body || "Belgilangan reja vaqti keldi!");
+                });
+            }
+        }
+
+        function requestNotifPermission() {
+            if (!("Notification" in window)) {
+                updateNotifPermissionUI();
+                return;
+            }
+            Notification.requestPermission().then(() => {
+                updateNotifPermissionUI();
+                if (Notification.permission === "granted") {
+                    testNotificationAlert();
+                }
+            });
+        }
+
+        function updateNotifPermissionUI() {
+            const el = document.getElementById("notif-permission-status");
+            const dot = document.getElementById("notif-dot");
+            if (!("Notification" in window)) {
+                el.textContent = "Bu brauzer tizim bildirishnomasini qo‘llamaydi (ilova ichida signal ishlaydi).";
+                return;
+            }
+            if (Notification.permission === "granted") {
+                el.innerHTML = `<span class="text-emerald-500 font-bold">✓ Ruxsat berilgan</span> — Bildirishnomalar faol.`;
+                dot.classList.remove("hidden");
+            } else if (Notification.permission === "denied") {
+                el.innerHTML = `<span class="text-rose-500 font-bold">✕ Bloklangan</span> — Brauzer sozlamalaridan ruxsat bering.`;
+                dot.classList.add("hidden");
+            } else {
+                el.textContent = "Hali yoqilmagan — 'Yoqish' tugmasini bosing.";
+                dot.classList.add("hidden");
+            }
+        }
+
+        function testNotificationAlert() {
+            triggerNotification("🔔 Sinov Eslatmasi (22:00 Rejim)", "Telefonni uzoqqa qo‘yish va uxlashga tayyorlanish signali ishlayapti!");
+        }
+
+        function openReminderModal() {
+            updateNotifPermissionUI();
+            renderRemindersList();
+            document.getElementById("reminder-modal").classList.remove("hidden");
+        }
+
+        function closeReminderModal() {
+            document.getElementById("reminder-modal").classList.add("hidden");
+        }
+
+        function renderRemindersList() {
+            const container = document.getElementById("reminders-list");
+            container.innerHTML = state.reminders.map(rem => `
+                <div class="flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-extrabold font-mono text-indigo-500">${rem.time}</span>
+                            <span class="text-xs font-bold text-slate-900 dark:text-white truncate">${rem.title}</span>
+                        </div>
+                        ${rem.body ? `<p class="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">${rem.body}</p>` : ''}
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" ${rem.enabled ? "checked" : ""} onchange="toggleReminder('${rem.id}')" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-300 rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                        </label>
+                        ${!rem.builtin ? `<button onclick="deleteReminder('${rem.id}')" class="text-rose-500 text-xs font-bold px-1.5">✕</button>` : ''}
+                    </div>
+                </div>
+            `).join("");
+        }
+
+        function toggleReminder(id) {
+            const rem = state.reminders.find(r => r.id === id);
+            if (rem) {
+                rem.enabled = !rem.enabled;
+                saveState();
+            }
+        }
+
+        function addCustomReminder() {
+            const timeVal = document.getElementById("new-rem-time").value;
+            const titleVal = document.getElementById("new-rem-title").value.trim();
+            if (!timeVal || !titleVal) return;
+
+            state.reminders.push({
+                id: "rem_" + Date.now(),
+                time: timeVal,
+                title: titleVal,
+                body: "Shaxsiy reja eslatmasi",
+                enabled: true,
+                builtin: false
+            });
+            state.reminders.sort((a, b) => a.time.localeCompare(b.time));
+            saveState();
+            document.getElementById("new-rem-title").value = "";
+            renderRemindersList();
+        }
+
+        function deleteReminder(id) {
+            state.reminders = state.reminders.filter(r => r.id !== id);
+            saveState();
+            renderRemindersList();
+        }
+
+        // ==========================================
+        // 4. LIVE CLOCK & ACTIVE TASK BANNER
+        // ==========================================
+        let lastKnownDayKey = formatDateKey(new Date());
+
+        function updateLiveClockAndActiveBanner() {
+            const now = new Date();
+            const hh = String(now.getHours()).padStart(2, "0");
+            const mm = String(now.getMinutes()).padStart(2, "0");
+            const ss = String(now.getSeconds()).padStart(2, "0");
+
+            document.getElementById("live-clock").textContent = `${hh}:${mm}:${ss}`;
+
+            const dayNum = now.getDate();
+            const monthName = UZ_MONTHS[now.getMonth()];
+            const yearNum = now.getFullYear();
+            const dayName = getUzbekDayName(now);
+            document.getElementById("live-date-text").textContent = `${dayNum}-${monthName}, ${yearNum}-yil · ${dayName}`;
+
+            checkReminders(now);
+
+            const currentDayKey = formatDateKey(now);
+            if (currentDayKey !== lastKnownDayKey) {
+                lastKnownDayKey = currentDayKey;
+                selectedDateObj = getInitialActiveDate();
+                viewWindowStartObj = getWindowStartForDate(selectedDateObj);
+                renderAll();
+            }
+
+            const banner = document.getElementById("active-task-banner");
+            const activeTargetDate = getInitialActiveDate();
+            const activeTargetKey = formatDateKey(activeTargetDate);
+            const selectedKey = formatDateKey(selectedDateObj);
+
+            if (selectedKey !== activeTargetKey) {
+                banner.classList.add("hidden");
+                return;
+            }
+
+            const targetDayName = getUzbekDayName(activeTargetDate);
+            const nowTotalSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            const tasks = SCHEDULE_DATA[targetDayName].tasks;
+
+            const activeTask = tasks.find(t => {
+                const [sH, sM] = t.start.split(":").map(Number);
+                const [eH, eM] = t.end.split(":").map(Number);
+                return nowTotalSec >= (sH * 3600 + sM * 60) && nowTotalSec < (eH * 3600 + eM * 60);
+            });
+
+            if (activeTask) {
+                const [sH, sM] = activeTask.start.split(":").map(Number);
+                const [eH, eM] = activeTask.end.split(":").map(Number);
+                const startSec = sH * 3600 + sM * 60;
+                const endSec = eH * 3600 + eM * 60;
+                const remaining = Math.max(0, endSec - nowTotalSec);
+                const pct = Math.min(100, Math.max(0, Math.round(((nowTotalSec - startSec) / (endSec - startSec)) * 100)));
+
+                banner.classList.remove("hidden");
+                document.getElementById("active-task-window").textContent = `${activeTask.start} – ${activeTask.end}`;
+                document.getElementById("active-task-title").textContent = activeTask.title;
+                document.getElementById("active-task-desc").textContent = activeTask.desc;
+                document.getElementById("active-task-remaining").textContent = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+                document.getElementById("active-task-progress").style.width = `${pct}%`;
+            } else {
+                banner.classList.remove("hidden");
+                document.getElementById("active-task-window").textContent = "22:30 – 06:00";
+                document.getElementById("active-task-title").textContent = "Uyqu va tiklanish vaqti 😴";
+                document.getElementById("active-task-desc").textContent = "Telefonni uzoqqa qo‘ying. Ertalab 06:00 da yangi kun boshlanadi.";
+                document.getElementById("active-task-remaining").textContent = "Uyqu";
+                document.getElementById("active-task-progress").style.width = "100%";
+            }
+        }
+
+        // ==========================================
+        // 5. UI RENDERING
+        // ==========================================
+        function renderDaySelector() {
+            const container = document.getElementById("day-selector");
+            const activeTargetKey = formatDateKey(getInitialActiveDate());
+            const selectedKey = formatDateKey(selectedDateObj);
+
+            const daysList = [];
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(viewWindowStartObj);
+                d.setDate(viewWindowStartObj.getDate() + i);
+                daysList.push(d);
+            }
+
+            const firstD = daysList[0];
+            const lastD = daysList[6];
+            document.getElementById("week-range-label").textContent =
+                `${firstD.getDate()}-${UZ_MONTHS[firstD.getMonth()]} — ${lastD.getDate()}-${UZ_MONTHS[lastD.getMonth()]}`;
+
+            const jumpBtn = document.getElementById("jump-today-btn");
+            if (selectedKey !== activeTargetKey) jumpBtn.classList.remove("hidden");
+            else jumpBtn.classList.add("hidden");
+
+            container.innerHTML = daysList.map(dateObj => {
+                const dayName = getUzbekDayName(dateObj);
+                const dateKey = formatDateKey(dateObj);
+                const isSelected = dateKey === selectedKey;
+                const isToday = dateKey === activeTargetKey;
+
+                const dayTasks = SCHEDULE_DATA[dayName].tasks;
+                const rec = state.byDate[dateKey];
+                const doneCount = rec && rec.status ? dayTasks.filter(t => rec.status[t.id] === "done").length : 0;
+                const missedCount = rec && rec.status ? dayTasks.filter(t => rec.status[t.id] === "missed").length : 0;
+                const pct = dayTasks.length > 0 ? Math.round((doneCount / dayTasks.length) * 100) : 0;
+
+                let statusBadge = `<span class="w-3.5 h-3.5 rounded-full border border-slate-300 dark:border-slate-700 inline-block"></span>`;
+                if (pct >= 80) {
+                    statusBadge = `<span class="w-3.5 h-3.5 rounded-full bg-emerald-500 text-white text-[9px] flex items-center justify-center font-bold">✓</span>`;
+                } else if (missedCount > 0 && doneCount === 0) {
+                    statusBadge = `<span class="w-3.5 h-3.5 rounded-full bg-rose-500 text-white text-[9px] flex items-center justify-center font-bold">✕</span>`;
+                } else if (pct > 0 || missedCount > 0) {
+                    statusBadge = `<span class="w-3.5 h-3.5 rounded-full border-2 border-amber-400 inline-block"></span>`;
+                }
+
+                return `
+                    <button onclick="selectDate('${dateKey}')"
+                        class="flex flex-col items-center justify-center py-2 px-1 rounded-2xl border transition
+                        ${isSelected
+                            ? 'bg-indigo-600 text-white border-indigo-500 shadow-md shadow-indigo-600/20'
+                            : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                        <span class="text-[10px] font-bold uppercase tracking-wider ${isSelected ? 'text-indigo-100' : 'text-slate-400'}">
+                            ${DAY_SHORT[dayName]}
+                        </span>
+                        <span class="text-xs font-extrabold font-mono my-0.5 ${isToday && !isSelected ? 'text-indigo-500 dark:text-indigo-400' : ''}">
+                            ${dateObj.getDate()}
+                        </span>
+                        <div class="mt-0.5 flex items-center justify-center">${statusBadge}</div>
+                    </button>
+                `;
+            }).join("");
+        }
+
+        function selectDate(dateKey) {
+            const [y, m, d] = dateKey.split("-").map(Number);
+            selectedDateObj = new Date(y, m - 1, d);
+            selectedDateObj.setHours(0, 0, 0, 0);
+            renderAll();
+        }
+
+        function isCurrentTimeSlot(startStr, endStr) {
+            const now = new Date();
+            const activeTargetKey = formatDateKey(getInitialActiveDate());
+            if (formatDateKey(selectedDateObj) !== activeTargetKey) return false;
+            const currentMins = now.getHours() * 60 + now.getMinutes();
+            const [sH, sM] = startStr.split(":").map(Number);
+            const [eH, eM] = endStr.split(":").map(Number);
+            return currentMins >= (sH * 60 + sM) && currentMins < (eH * 60 + eM);
+        }
+
+        function renderSchedule() {
+            const listEl = document.getElementById("schedule-list");
+            const dateKey = formatDateKey(selectedDateObj);
+            const selectedDayName = getUzbekDayName(selectedDateObj);
+            const rec = getDateRecord(dateKey);
+
+            const dayData = SCHEDULE_DATA[selectedDayName];
+            const filteredTasks = dayData.tasks.filter(t => {
+                if (activeFilter === "all") return true;
+                if (activeFilter === "missed") return getTaskStatus(rec, t.id) === "missed";
+                return t.cat === activeFilter;
+            });
+
+            if (filteredTasks.length === 0) {
+                listEl.innerHTML = `<div class="text-center py-8 text-xs text-slate-400">Bu filtr bo‘yicha topshiriq topilmadi.</div>`;
+                return;
+            }
+
+            listEl.innerHTML = filteredTasks.map(task => {
+                const status = getTaskStatus(rec, task.id);
+                const isNow = isCurrentTimeSlot(task.start, task.end);
+                const badge = CAT_BADGE[task.cat];
+                const savedNote = state.taskNotes[`${dateKey}_${task.id}`];
+
+                let cardStyle = 'bg-white dark:bg-slate-900 border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700';
+                let boxStyle = 'border-slate-300 dark:border-slate-600 hover:border-indigo-500';
+                let boxIcon = '';
+                let titleStyle = 'text-slate-900 dark:text-slate-100';
+                let statusPill = '';
+
+                if (status === "done") {
+                    cardStyle = 'bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/30 opacity-85';
+                    boxStyle = 'bg-emerald-500 border-emerald-500 text-white';
+                    boxIcon = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>';
+                    titleStyle = 'line-through text-slate-400 dark:text-slate-500';
+                    statusPill = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">✓ Bajarildi</span>';
+                } else if (status === "missed") {
+                    cardStyle = 'bg-rose-500/10 dark:bg-rose-950/30 border-rose-500/40';
+                    boxStyle = 'bg-rose-600 border-rose-600 text-white';
+                    boxIcon = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/></svg>';
+                    titleStyle = 'text-rose-700 dark:text-rose-300';
+                    statusPill = '<span class="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-500/20 text-rose-600 dark:text-rose-400">✕ Bajarilmadi</span>';
+                } else if (isNow) {
+                    cardStyle = 'bg-indigo-50/80 dark:bg-indigo-950/35 border-indigo-400 dark:border-indigo-500/60 shadow-sm';
+                }
+
+                return `
+                    <div class="group relative flex items-start gap-3 p-3.5 rounded-2xl border transition-all duration-200 ${cardStyle}">
+                        <!-- 3-State Check Button -->
+                        <div onclick="cycleTaskStatus('${task.id}')" class="mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center shrink-0 cursor-pointer transition ${boxStyle}" title="Bosish: Bajarildi → Bajarilmadi → Tozalash">
+                            ${boxIcon}
+                        </div>
+
+                        <!-- Content -->
+                        <div onclick="cycleTaskStatus('${task.id}')" class="flex-1 min-w-0 cursor-pointer">
+                            <div class="flex items-center flex-wrap gap-1.5 mb-1">
+                                <span class="text-xs font-bold font-mono ${isNow ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}">
+                                    ${task.start} – ${task.end}
+                                </span>
+                                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md border ${badge.cls}">
+                                    ${badge.label}
+                                </span>
+                                ${statusPill}
+                                ${isNow ? '<span class="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-indigo-600 text-white animate-pulse">HOZIR</span>' : ''}
+                            </div>
+                            <h4 class="text-sm font-bold leading-snug ${titleStyle}">
+                                ${task.title}
+                            </h4>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-relaxed">
+                                ${task.desc}
+                            </p>
+                            ${savedNote ? `<div class="mt-2 px-2.5 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300 font-medium">📝 ${savedNote}</div>` : ''}
+                        </div>
+
+                        <!-- Note Button -->
+                        <button onclick="openNoteModal('${task.id}')" class="p-1.5 rounded-lg text-slate-400 hover:text-indigo-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0" title="Sabab yoki qayd yozish">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            }).join("");
+        }
+
+        function toggleScrollingGuard() {
+            const dateKey = formatDateKey(selectedDateObj);
+            const rec = getDateRecord(dateKey);
+            rec.scrollingGuard = document.getElementById("scrolling-guard-checkbox").checked;
+            saveState();
+        }
+
+        function updateProgressHeader() {
+            const dateKey = formatDateKey(selectedDateObj);
+            const selectedDayName = getUzbekDayName(selectedDateObj);
+            const rec = getDateRecord(dateKey);
+            const dayData = SCHEDULE_DATA[selectedDayName];
+
+            const total = dayData.tasks.length;
+            const done = dayData.tasks.filter(t => rec.status[t.id] === "done").length;
+            const missed = dayData.tasks.filter(t => rec.status[t.id] === "missed").length;
+
+            const donePct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const missedPct = total > 0 ? Math.round((missed / total) * 100) : 0;
+
+            document.getElementById("day-summary-label").textContent = `${selectedDateObj.getDate()}-${UZ_MONTHS[selectedDateObj.getMonth()]}, ${selectedDayName}`;
+            document.getElementById("progress-text").textContent = `${donePct}% (${done}/${total})`;
+            document.getElementById("progress-bar-done").style.width = `${donePct}%`;
+            document.getElementById("progress-bar-missed").style.width = `${missedPct}%`;
+
+            const missedBadge = document.getElementById("missed-count-badge");
+            if (missed > 0) {
+                missedBadge.textContent = `${missed} ✕`;
+                missedBadge.classList.remove("hidden");
+            } else {
+                missedBadge.classList.add("hidden");
+            }
+
+            document.getElementById("streak-count").textContent = `${calculateStreak()}`;
+            document.getElementById("scrolling-guard-checkbox").checked = !!rec.scrollingGuard;
+            document.getElementById("storage-date-label").textContent = `Sana: ${dateKey}`;
+        }
+
+        function setFilter(filterKey) {
+            activeFilter = filterKey;
+            document.querySelectorAll(".filter-btn").forEach(btn => {
+                const isMatch = btn.dataset.filter === filterKey;
+                const baseCls = btn.dataset.filter === "missed" ? "text-rose-500" : "text-slate-600 dark:text-slate-300";
+                btn.className = isMatch
+                    ? "filter-btn active px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shrink-0 transition"
+                    : `filter-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white dark:bg-slate-900 ${baseCls} border border-slate-200 dark:border-slate-800 shrink-0 transition`;
+            });
+            renderSchedule();
+        }
+
+        function renderAll() {
+            renderDaySelector();
+            renderSchedule();
+            updateProgressHeader();
+            updateLiveClockAndActiveBanner();
+        }
+
+        // ==========================================
+        // 6. RESOURCES, NOTES, TIMER & MODALS
+        // ==========================================
+        function openResourcesModal() {
+            document.getElementById("resources-modal").classList.remove("hidden");
+        }
+        function closeResourcesModal() {
+            document.getElementById("resources-modal").classList.add("hidden");
+        }
+
+        function nextSpeakingTopic() {
+            currentPromptIndex = (currentPromptIndex + 1) % SPEAKING_PROMPTS.length;
+            const item = SPEAKING_PROMPTS[currentPromptIndex];
+            document.getElementById("speaking-topic-text").textContent = item.q;
+            document.getElementById("speaking-topic-vocab").textContent = `Kalit so‘zlar: ${item.vocab}.`;
+        }
+
+        function openNoteModal(taskId) {
+            editingNoteTaskId = taskId;
+            const dateKey = formatDateKey(selectedDateObj);
+            const selectedDayName = getUzbekDayName(selectedDateObj);
+            const task = SCHEDULE_DATA[selectedDayName].tasks.find(t => t.id === taskId);
+            if (!task) return;
+
+            document.getElementById("note-modal-time").textContent = `${selectedDayName} · ${task.start} – ${task.end}`;
+            document.getElementById("note-modal-title").textContent = task.title;
+            document.getElementById("task-note-input").value = state.taskNotes[`${dateKey}_${taskId}`] || "";
+            document.getElementById("note-modal").classList.remove("hidden");
+        }
+        function closeNoteModal() {
+            editingNoteTaskId = null;
+            document.getElementById("note-modal").classList.add("hidden");
+        }
+        function saveTaskNote() {
+            if (!editingNoteTaskId) return;
+            const dateKey = formatDateKey(selectedDateObj);
+            const val = document.getElementById("task-note-input").value.trim();
+            const key = `${dateKey}_${editingNoteTaskId}`;
+            if (val) state.taskNotes[key] = val;
+            else delete state.taskNotes[key];
+            saveState();
+            closeNoteModal();
+            renderSchedule();
+        }
+
+        let timerSeconds = 20 * 60;
+        let timerPresetSeconds = 20 * 60;
+        let timerInterval = null;
+
+        function openTimerModal() { document.getElementById("timer-modal").classList.remove("hidden"); }
+        function closeTimerModal() { document.getElementById("timer-modal").classList.add("hidden"); }
+        function setTimerPreset(mins) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerPresetSeconds = mins * 60;
+            timerSeconds = timerPresetSeconds;
+            document.getElementById("timer-start-btn").textContent = "Boshlash";
+            document.getElementById("timer-status").textContent = `${mins} daqiqalik taymer tanlandi`;
+            updateTimerDisplay();
+        }
+        function updateTimerDisplay() {
+            const m = Math.floor(timerSeconds / 60).toString().padStart(2, "0");
+            const s = (timerSeconds % 60).toString().padStart(2, "0");
+            document.getElementById("timer-display").textContent = `${m}:${s}`;
+        }
+        function toggleTimer() {
+            const btn = document.getElementById("timer-start-btn");
+            const status = document.getElementById("timer-status");
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                btn.textContent = "Davom ettirish";
+                status.textContent = "To‘xtatildi";
+            } else {
+                btn.textContent = "Pauza";
+                status.textContent = "Jarayonda...";
+                timerInterval = setInterval(() => {
+                    if (timerSeconds > 0) {
+                        timerSeconds--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        timerInterval = null;
+                        btn.textContent = "Boshlash";
+                        status.textContent = "Vaqt tugadi! Barakalla!";
+                        triggerNotification("⏱️ Taymer tugadi!", "Belgilangan mashq vaqti yakunlandi.");
+                    }
+                }, 1000);
+            }
+        }
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            timerSeconds = timerPresetSeconds;
+            document.getElementById("timer-start-btn").textContent = "Boshlash";
+            document.getElementById("timer-status").textContent = "Tayyor";
+            updateTimerDisplay();
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            if (html.classList.contains("dark")) {
+                html.classList.remove("dark");
+                localStorage.setItem("tracker_theme", "light");
+            } else {
+                html.classList.add("dark");
+                localStorage.setItem("tracker_theme", "dark");
+            }
+        }
+
+        function openResetModal() { document.getElementById("reset-modal").classList.remove("hidden"); }
+        function closeResetModal() { document.getElementById("reset-modal").classList.add("hidden"); }
+        function confirmResetDay() {
+            const dateKey = formatDateKey(selectedDateObj);
+            state.byDate[dateKey] = { status: {}, scrollingGuard: false };
+            saveState();
+            closeResetModal();
+            renderAll();
+        }
+
+        window.onload = function () {
+            const savedTheme = localStorage.getItem("tracker_theme");
+            if (savedTheme === "light") document.documentElement.classList.remove("dark");
+            updateNotifPermissionUI();
+            renderAll();
+            setInterval(updateLiveClockAndActiveBanner, 1000);
+        };
+    </script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+      }
+    </script>
+</body>
+</html>
